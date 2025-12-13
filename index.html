@@ -5,72 +5,363 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Picture Frame Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter and Hanuman (for Khmer support) -->
+    <!-- Google Fonts: Khmer OS Siemreap and Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Khmer+OS:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Cropper.js for image cropping -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <style>
         body {
-            /* Use Hanuman for Khmer, fallback to Inter */
-            font-family: 'Hanuman', 'Inter', sans-serif;
-            background-color: #E00025; /* Red fallback */
-            background-image: linear-gradient(to bottom, #032EA1 0%, #032EA1 25%, #E00025 25%, #E00025 75%, #032EA1 75%, #032EA1 100%);
+            /* Use Khmer OS Siemreap for Khmer, fallback to Inter */
+            font-family: 'Khmer OS', 'Inter', sans-serif;
+            background: linear-gradient(180deg, #002395 0%, #002395 35%, #E00025 35%, #E00025 65%, #002395 65%, #002395 100%);
+            min-height: 100vh;
+            position: relative;
         }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300"><path d="M600 250 L550 150 L530 180 L500 120 L480 170 L450 100 L430 160 L400 80 L380 140 L350 60 L320 130 L280 70 L250 140 L200 100 L150 160 L100 120 L50 180 M600 250 L650 150 L670 180 L700 120 L720 170 L750 100 L770 160 L800 80 L820 140 L850 60 L880 130 L920 70 L950 140 L1000 100 L1050 160 L1100 120 L1150 180" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+            background-repeat: repeat-x;
+            background-position: bottom;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            animation: fadeIn 0.6s ease-in;
+            position: relative;
+            z-index: 1;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        header {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.6s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #main-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        #main-subtitle {
+            color: #6b7280;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+        
+        main {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,249,250,0.98) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+        
         .frame-item {
             cursor: pointer;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #f5f7fa 0%, #f0f4f8 100%);
+            border: 2px solid #e5e7eb;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .frame-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
         .frame-item:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+        
+        .frame-item:hover::before {
+            opacity: 1;
+        }
+        
+        .frame-item.selected {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5), 0 12px 24px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
             transform: scale(1.05);
         }
-        .frame-item.selected {
-            box-shadow: 0 0 0 4px #3b82f6; /* Ring effect for selected frame */
-        }
+        
         .file-input-button {
-            background-color: #3b82f6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-block;
             text-align: center;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .file-input-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.3s;
+        }
+        
+        .file-input-button:hover::before {
+            left: 100%;
+        }
+        
         .file-input-button:hover {
-            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
         }
+        
         .file-input-button-secondary {
-            background-color: #4b5563;
+            background: linear-gradient(135deg, #4b5563 0%, #2d3748 100%);
+            box-shadow: 0 4px 15px rgba(75, 85, 99, 0.3);
         }
+        
         .file-input-button-secondary:hover {
-            background-color: #374151;
+            box-shadow: 0 6px 20px rgba(75, 85, 99, 0.4);
         }
+        
         #cropModal {
             display: none;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
         }
+        
         #cropModal.flex {
             display: flex;
+            animation: fadeIn 0.3s ease-out;
         }
+        
+        #cropModal .bg-white {
+            animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
         .cropper-container-div {
             width: 100%;
             height: 400px;
             max-height: 70vh;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f5f7fa 0%, #f0f4f8 100%);
+            border: 2px solid #e5e7eb;
         }
+        
+        #crop-modal-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .p-2.bg-gray-200 {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            transition: all 0.2s;
+        }
+        
+        .p-2.bg-gray-200:hover {
+            background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+            transform: scale(1.1);
+        }
+        
+        #download {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            letter-spacing: 0.5px;
+        }
+        
+        #download:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+        }
+        
+        #download:disabled {
+            background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+            box-shadow: none;
+        }
+        
+        footer {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.6s ease-out 0.2s both;
+        }
+        
+        footer a {
+            transition: all 0.3s;
+            color: #667eea;
+        }
+        
+        footer a:hover {
+            color: #764ba2;
+            transform: translateY(-2px);
+        }
+        
+        .border-t {
+            border-color: #e5e7eb;
+        }
+        
+        #canvas-placeholder {
+            transition: opacity 0.3s;
+        }
+        
+        .relative.w-full {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border: 2px dashed #d1d5db;
+        }
+        
+        #imageCanvas {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        #save-frame-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            font-weight: 600;
+        }
+        
+        #save-frame-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+        
         .spinner {
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            width: 16px;
-            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            border-left-color: #fff;
-            animation: spin 1s ease infinite;
+            animation: spin 1s linear infinite;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Guideline/Tutorial Styles */
+        #guidelineOverlay {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 40;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        #guidelineOverlay .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        #guide-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        #guideContent {
+            margin-top: 1rem;
+        }
+
+        #guideContent .flex {
+            margin-bottom: 1rem;
+        }
+
+        #guideContent .w-8 {
+            background: #2563eb;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+        }
+
+        #understandGuide {
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            color: white;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        #understandGuide:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         }
     </style>
 </head>
@@ -79,10 +370,10 @@
     <!-- Main Application -->
     <div class="container mx-auto p-4 md:p-8 max-w-5xl">
         <header class="text-center mb-8 relative bg-white/75 backdrop-blur-sm p-4 rounded-xl">
-            <h1 id="main-title" class="text-4xl md:text-5xl font-bold text-gray-900"></h1>
-            <p id="main-subtitle" class="text-lg text-gray-600 mt-2"></p>
+            <h1 id="main-title" class="text-3xl md:text-4xl font-bold text-gray-900"></h1>
+            <p id="main-subtitle" class="text-base md:text-lg text-gray-600 mt-1"></p>
             <div class="absolute top-2 right-2">
-                <button id="lang-switcher" class="bg-white border border-gray-300 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"></button>
+                <button id="lang-switcher" class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"></button>
             </div>
         </header>
 
@@ -105,9 +396,6 @@
                     <h2 id="upload-frame-title" class="text-2xl font-semibold mb-3"></h2>
                      <label id="upload-frame-label" for="frameUploader" class="file-input-button file-input-button-secondary"></label>
                     <input type="file" id="frameUploader" name="frameUploader" accept="image/png" class="hidden"/>
-                    <div id="save-frame-container" class="hidden mt-2">
-                        <button id="save-frame-btn" class="text-sm bg-green-600 text-white py-1 px-3 rounded-md hover:bg-green-700"></button>
-                    </div>
                     <p id="upload-frame-subtitle" class="text-sm text-gray-500 mt-2"></p>
                 </div>
 
@@ -124,7 +412,7 @@
                 <div class="relative w-full max-w-xs aspect-square bg-gray-200 rounded-lg shadow-inner flex items-center justify-center">
                     <canvas id="imageCanvas" width="400" height="400" class="w-full h-full object-cover rounded-lg"></canvas>
                     <div id="canvas-placeholder" class="absolute text-center text-gray-500">
-                        <svg class="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <svg class="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.23a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <p id="canvas-placeholder-text"></p>
                     </div>
                 </div>
@@ -169,13 +457,56 @@
         </div>
     </div>
 
+    <!-- Guideline/Tutorial Overlay -->
+    <div id="guidelineOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full animate-pulse">
+            <div class="flex items-center justify-between mb-6">
+                <h3 id="guide-title" class="text-2xl font-bold"></h3>
+                <button id="closeGuide" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="guideContent" class="space-y-4">
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">1</div>
+                    <div>
+                        <p id="guide-step1-title" class="font-semibold text-gray-900"></p>
+                        <p id="guide-step1-desc" class="text-gray-600 text-sm mt-1"></p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">2</div>
+                    <div>
+                        <p id="guide-step2-title" class="font-semibold text-gray-900"></p>
+                        <p id="guide-step2-desc" class="text-gray-600 text-sm mt-1"></p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">3</div>
+                    <div>
+                        <p id="guide-step3-title" class="font-semibold text-gray-900"></p>
+                        <p id="guide-step3-desc" class="text-gray-600 text-sm mt-1"></p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">4</div>
+                    <div>
+                        <p id="guide-step4-title" class="font-semibold text-gray-900"></p>
+                        <p id="guide-step4-desc" class="text-gray-600 text-sm mt-1"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button id="understandGuide" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all"></button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Declare variables for DOM elements in the global scope
         let imageLoader, frameUploader, canvas, ctx, downloadBtn,
             frameSelectionContainer, canvasPlaceholder, fileNameDisplay,
             langSwitcherBtn, cropModal, imageToCrop,
             confirmCropBtn, cancelCropBtn, zoomInBtn, zoomOutBtn, rotateLeftBtn, rotateRightBtn,
-            saveFrameContainer, saveFrameBtn, savedFrameSelectionContainer, noSavedFrames;
+            savedFrameSelectionContainer, noSavedFrames;
 
         // App State
         let userImage = null;
@@ -189,7 +520,7 @@
             { id: 'simple-circle', name: 'Circle', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="48" fill="none" stroke="white" stroke-width="4"/></svg>` },
             { id: 'gold-ring', name: 'Gold Ring', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fde047;stop-opacity:1" /><stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" /></linearGradient></defs><circle cx="50" cy="50" r="47" fill="none" stroke="url(#goldGradient)" stroke-width="6"/></svg>` },
             { id: 'rainbow-pride', name: 'Pride', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="prideGradient" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#EF4444"/><stop offset="20%" stop-color="#F59E0B"/><stop offset="40%" stop-color="#FDE047"/><stop offset="60%" stop-color="#84CC16"/><stop offset="80%" stop-color="#3B82F6"/><stop offset="100%" stop-color="#8B5CF6"/></linearGradient></defs><rect width="100" height="100" fill="none" stroke="url(#prideGradient)" stroke-width="8"/></svg>` },
-            { id: 'khmer-welcome', name: 'ស្វាគមន៍', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><text x="50" y="85" font-family="Hanuman" font-size="14" fill="#D92528" text-anchor="middle" font-weight="bold">ស្វាគមន៍</text></svg>` },
+            { id: 'khmer-welcome', name: 'ស្វាគមន៍', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><text x="50" y="85" font-family="Khmer OS" font-size="14" fill="#D92528" text-anchor="middle" font-weight="bold">ស្វាគមន៍</text></svg>` },
             { id: 'vintage-corners', name: 'Vintage', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><style>.corner{fill:none;stroke:#a16207;stroke-width:2;}</style><path d="M0 20 L0 0 L20 0" class="corner"/><path d="M80 0 L100 0 L100 20" class="corner"/><path d="M100 80 L100 100 L80 100" class="corner"/><path d="M20 100 L0 100 L0 80" class="corner"/></svg>` },
             { id: 'no-frame', name: 'None', type: 'none', content: '' }
         ];
@@ -218,7 +549,17 @@
                 langButton: "ភាសាខ្មែរ",
                 savedFramesTitle: "Your Saved Frames",
                 noSavedFrames: "You have no saved frames.",
-                saveFrame: "Save Frame"
+                saveFrame: "Save Frame",
+                guideTitle: "How to Use Profile Frame Studio",
+                guideStep1Title: "Upload Your Picture",
+                guideStep1Desc: "Click 'Choose an Image' button to select a photo from your device.",
+                guideStep2Title: "Crop & Adjust",
+                guideStep2Desc: "Use the cropping tools to resize and adjust your image to be square.",
+                guideStep3Title: "Select a Frame",
+                guideStep3Desc: "Choose from pre-made frames or upload your own custom PNG frame.",
+                guideStep4Title: "Download Your Picture",
+                guideStep4Desc: "Click the 'Download' button to save your framed picture in high resolution.",
+                understandGuide: "Got it, let's start!"
             },
             km: {
                 mainTitle: "ស្ទូឌីយោ​ស៊ុម​រូបភាព​ប្រវត្តិរូប",
@@ -242,7 +583,17 @@
                 langButton: "English",
                 savedFramesTitle: "ស៊ុមដែលបានរក្សាទុករបស់អ្នក",
                 noSavedFrames: "អ្នកមិនមានស៊ុមដែលបានរក្សាទុកទេ។",
-                saveFrame: "រក្សាទុកស៊ុម"
+                saveFrame: "រក្សាទុកស៊ុម",
+                guideTitle: "របៀបប្រើ Profile Frame Studio",
+                guideStep1Title: "បង្ហោះរូបភាព",
+                guideStep1Desc: "ចុចលើប៊ូតុង 'ជ្រើសរើសរូបភាព' ដើម្បីជ្រើសរើសរូបថតពីឧបករណ៍របស់អ្នក។",
+                guideStep2Title: "កាត់ និងបំលែង",
+                guideStep2Desc: "ប្រើឧបករណ៍ការកាត់ដើម្បីបំលែង និងបំលែងរូបភាពរបស់អ្នកឱ្យប្រែក្លាយទៅតាមដែលអ្នកចង់បាន។",
+                guideStep3Title: "ជ្រើសរើសស៊ុម",
+                guideStep3Desc: "ជ្រើសរើសពីស៊ុមដែលមានស្រាប់ ឬបង្ហោះស៊ុម PNG ផ្ទាល់ខ្លួនរបស់អ្នក។",
+                guideStep4Title: "ទាញយករូបភាពរបស់អ្នក",
+                guideStep4Desc: "ចុចលើប៊ូតុង 'ទាញយក' ដើម្បីរក្សាទុករូបភាពដែលរួចរាល់របស់អ្នកក្នុងគុណភាពខ្ពស់។",
+                understandGuide: "បានយល់ និងចាប់ផ្តើម!"
             }
         };
 
@@ -266,10 +617,19 @@
             document.getElementById('crop-modal-title').textContent = t.cropModalTitle;
             document.getElementById('cancelCrop').textContent = t.cancel;
             document.getElementById('confirmCrop').textContent = t.confirm;
+            document.getElementById('guide-title').textContent = t.guideTitle;
+            document.getElementById('guide-step1-title').textContent = t.guideStep1Title;
+            document.getElementById('guide-step1-desc').textContent = t.guideStep1Desc;
+            document.getElementById('guide-step2-title').textContent = t.guideStep2Title;
+            document.getElementById('guide-step2-desc').textContent = t.guideStep2Desc;
+            document.getElementById('guide-step3-title').textContent = t.guideStep3Title;
+            document.getElementById('guide-step3-desc').textContent = t.guideStep3Desc;
+            document.getElementById('guide-step4-title').textContent = t.guideStep4Title;
+            document.getElementById('guide-step4-desc').textContent = t.guideStep4Desc;
+            document.getElementById('understandGuide').textContent = t.understandGuide;
             langSwitcherBtn.textContent = t.langButton;
             document.getElementById('saved-frames-title').textContent = t.savedFramesTitle;
             document.getElementById('no-saved-frames').textContent = t.noSavedFrames;
-            document.getElementById('save-frame-btn').textContent = t.saveFrame;
             currentLang = lang;
         }
 
@@ -351,8 +711,6 @@
             zoomOutBtn = document.getElementById('zoomOut');
             rotateLeftBtn = document.getElementById('rotateLeft');
             rotateRightBtn = document.getElementById('rotateRight');
-            saveFrameContainer = document.getElementById('save-frame-container');
-            saveFrameBtn = document.getElementById('save-frame-btn');
             savedFrameSelectionContainer = document.getElementById('saved-frame-selection');
             noSavedFrames = document.getElementById('no-saved-frames');
             
@@ -366,7 +724,8 @@
             downloadBtn.addEventListener('click', downloadImage);
             confirmCropBtn.addEventListener('click', applyCrop);
             cancelCropBtn.addEventListener('click', hideCropModal);
-            saveFrameBtn.addEventListener('click', saveCustomFrame);
+            document.getElementById('closeGuide').addEventListener('click', closeGuide);
+            document.getElementById('understandGuide').addEventListener('click', closeGuide);
             zoomInBtn.addEventListener('click', () => cropper && cropper.zoom(0.1));
             zoomOutBtn.addEventListener('click', () => cropper && cropper.zoom(-0.1));
             rotateLeftBtn.addEventListener('click', () => cropper && cropper.rotate(-45));
@@ -421,15 +780,27 @@
         function handleFrameUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
+            
+            // Validate file type
+            if (file.type !== 'image/png') {
+                alert('Please upload a PNG file.');
+                frameUploader.value = '';
+                return;
+            }
+            
             const reader = new FileReader();
+            reader.onerror = () => {
+                alert('Error reading file. Please try again.');
+                frameUploader.value = '';
+            };
             reader.onload = function(event) {
-                tempUploadedFrame = { 
+                const frameData = { 
                     id: 'custom-' + Date.now(), 
                     name: file.name.length > 12 ? file.name.substring(0, 10) + '...' : file.name, 
                     type: 'png', 
                     content: event.target.result 
                 };
-                saveFrameContainer.classList.remove('hidden');
+                saveAndApplyCustomFrame(frameData);
             }
             reader.readAsDataURL(file);
         }
@@ -453,14 +824,17 @@
                 const framePreview = document.createElement('img');
                 framePreview.src = previewSrc;
                 framePreview.crossOrigin = "Anonymous";
-                framePreview.className = 'absolute inset-0 w-full h-full';
+                framePreview.className = 'absolute inset-0 w-full h-full object-cover';
+                framePreview.onerror = () => {
+                    console.warn('Failed to load frame preview:', frame.id);
+                };
                 frameDiv.appendChild(framePreview);
             }
             
             if (isSaved) {
                 const deleteButton = document.createElement('button');
                 deleteButton.innerHTML = '&times;';
-                deleteButton.className = 'absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold opacity-0 group-hover:opacity-100 transition-opacity z-10';
+                deleteButton.className = 'absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-700';
                 deleteButton.onclick = (e) => {
                     e.stopPropagation();
                     deleteSavedFrame(frame.id);
@@ -511,26 +885,53 @@
 
         function downloadImage() {
             if (!userImage) return;
-            const link = document.createElement('a');
-            link.download = 'profile-with-frame.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            
+            // Create high-resolution canvas (2x size = 800x800)
+            const highResCanvas = document.createElement('canvas');
+            highResCanvas.width = 800;
+            highResCanvas.height = 800;
+            const highResCtx = highResCanvas.getContext('2d');
+            
+            // Draw user image at high resolution
+            highResCtx.drawImage(userImage, 0, 0, 800, 800);
+            
+            // Draw frame at high resolution
+            if (selectedFrame && selectedFrame.type !== 'none') {
+                const frameImage = new Image();
+                frameImage.crossOrigin = "Anonymous";
+                frameImage.onload = function() {
+                    highResCtx.drawImage(frameImage, 0, 0, 800, 800);
+                    // Download after frame is loaded
+                    const link = document.createElement('a');
+                    link.download = 'profile-picture-hd.png';
+                    link.href = highResCanvas.toDataURL('image/png', 0.95);
+                    link.click();
+                }
+                if (selectedFrame.type === 'svg') {
+                    frameImage.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(selectedFrame.content)));
+                } else if (selectedFrame.type === 'png') {
+                    frameImage.src = selectedFrame.content;
+                }
+            } else {
+                // No frame, download just the image
+                const link = document.createElement('a');
+                link.download = 'profile-picture-hd.png';
+                link.href = highResCanvas.toDataURL('image/png', 0.95);
+                link.click();
+            }
         }
 
         // --- IndexedDB FUNCTIONS ---
-        async function saveCustomFrame() {
-            if (!tempUploadedFrame) return;
+        async function saveAndApplyCustomFrame(frameData) {
             try {
-                await dbHelper.addFrame(tempUploadedFrame);
+                await dbHelper.addFrame(frameData);
                 await loadSavedFrames();
-                saveFrameContainer.classList.add('hidden');
-                const newFrameElement = document.querySelector(`#saved-frame-selection [data-frame-id="${tempUploadedFrame.id}"]`);
+                const newFrameElement = document.querySelector(`#saved-frame-selection [data-frame-id="${frameData.id}"]`);
                 if (newFrameElement) {
-                    selectFrame(tempUploadedFrame, newFrameElement);
+                    selectFrame(frameData, newFrameElement);
                 }
-                tempUploadedFrame = null;
             } catch (error) {
-                alert(error);
+                alert('Error saving frame: ' + error);
             }
         }
 
@@ -558,6 +959,9 @@
         
         window.onload = initialize;
 
+        function closeGuide() {
+            document.getElementById('guidelineOverlay').style.display = 'none';
+        }
     </script>
 </body>
 </html>
