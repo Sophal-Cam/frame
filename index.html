@@ -245,63 +245,32 @@
             border-radius: 1.5rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             animation: slideUp 0.6s ease-out 0.2s both;
+            padding: 1.5rem;
         }
         
         footer a {
             transition: all 0.3s;
             color: #667eea;
+            font-size: 0.95rem;
         }
         
         footer a:hover {
             color: #764ba2;
             transform: translateY(-2px);
         }
-        
-        .border-t {
-            border-color: #e5e7eb;
-        }
-        
-        #canvas-placeholder {
-            transition: opacity 0.3s;
-        }
-        
-        .relative.w-full {
-            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-            border: 2px dashed #d1d5db;
-        }
-        
-        #imageCanvas {
-            background: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        #save-frame-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-            font-weight: 600;
-        }
-        
-        #save-frame-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-        }
-        
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        #footer-text {
+            font-size: 1rem;
+            font-weight: 500;
         }
 
-        /* Guideline/Tutorial Styles */
+        #cambodia-text {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-top: 1rem;
+            color: #4b5563;
+        }
+
         #guidelineOverlay {
             display: flex;
             position: fixed;
@@ -422,18 +391,23 @@
             </div>
         </main>
 
-        <footer class="text-center p-4 mt-8 text-gray-600 bg-white/75 backdrop-blur-sm rounded-xl">
-            <p id="footer-text" class="mb-2"></p>
-            <div class="flex justify-center items-center space-x-4">
+        <footer class="text-center p-6 mt-8 text-gray-600 bg-white/75 backdrop-blur-sm rounded-xl">
+            <p id="footer-text" class="mb-3 text-base font-medium"></p>
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-6 flex-wrap">
+                <a href="https://www.facebook.com/str.services" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 font-semibold text-blue-600 hover:underline">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg>
+                    <span id="fb-page-text" class="text-sm"></span>
+                </a>
                 <a href="https://t.me/strsolutions" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 font-semibold text-blue-600 hover:underline">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23l7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3L3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.57c-.28 1.13-1.04 1.4-1.74.88L14.25 16l-4.12 3.9c-.78.77-1.39.37-1.61-.78z"></path></svg>
-                    <span id="tg-channel-text"></span>
+                    <span id="tg-channel-text" class="text-sm"></span>
                 </a>
                 <a href="https://t.me/STRService" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 font-semibold text-blue-600 hover:underline">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23l7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3L3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.57c-.28 1.13-1.04 1.4-1.74.88L14.25 16l-4.12 3.9c-.78.77-1.39.37-1.61-.78z"></path></svg>
-                    <span id="tg-admin-text"></span>
+                    <span id="tg-admin-text" class="text-sm"></span>
                 </a>
             </div>
+            <p id="cambodia-text" class="mt-4 text-gray-600 font-medium"></p>
         </footer>
     </div>
 
@@ -559,7 +533,8 @@
                 guideStep3Desc: "Choose from pre-made frames or upload your own custom PNG frame.",
                 guideStep4Title: "Download Your Picture",
                 guideStep4Desc: "Click the 'Download' button to save your framed picture in high resolution.",
-                understandGuide: "Got it, let's start!"
+                understandGuide: "Got it, let's start!",
+                cambodiaText: "We stay with Cambodia"
             },
             km: {
                 mainTitle: "ស្ទូឌីយោ​ស៊ុម​រូបភាព​ប្រវត្តិរូប",
@@ -593,7 +568,8 @@
                 guideStep3Desc: "ជ្រើសរើសពីស៊ុមដែលមានស្រាប់ ឬបង្ហោះស៊ុម PNG ផ្ទាល់ខ្លួនរបស់អ្នក។",
                 guideStep4Title: "ទាញយករូបភាពរបស់អ្នក",
                 guideStep4Desc: "ចុចលើប៊ូតុង 'ទាញយក' ដើម្បីរក្សាទុករូបភាពដែលរួចរាល់របស់អ្នកក្នុងគុណភាពខ្ពស់។",
-                understandGuide: "បានយល់ និងចាប់ផ្តើម!"
+                understandGuide: "បានយល់ និងចាប់ផ្តើម!",
+                cambodiaText: "យើងនៅជាមួយកម្ពុជា"
             }
         };
 
@@ -614,6 +590,7 @@
             document.getElementById('footer-text').textContent = t.footerText;
             document.getElementById('tg-channel-text').textContent = t.tgChannel;
             document.getElementById('tg-admin-text').textContent = t.tgAdmin;
+            document.getElementById('fb-page-text').textContent = lang === 'en' ? 'Facebook Page' : 'ទំព័រ Facebook';
             document.getElementById('crop-modal-title').textContent = t.cropModalTitle;
             document.getElementById('cancelCrop').textContent = t.cancel;
             document.getElementById('confirmCrop').textContent = t.confirm;
@@ -627,6 +604,7 @@
             document.getElementById('guide-step4-title').textContent = t.guideStep4Title;
             document.getElementById('guide-step4-desc').textContent = t.guideStep4Desc;
             document.getElementById('understandGuide').textContent = t.understandGuide;
+            document.getElementById('cambodia-text').textContent = t.cambodiaText;
             langSwitcherBtn.textContent = t.langButton;
             document.getElementById('saved-frames-title').textContent = t.savedFramesTitle;
             document.getElementById('no-saved-frames').textContent = t.noSavedFrames;
