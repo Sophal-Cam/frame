@@ -109,14 +109,6 @@
                         <button id="save-frame-btn" class="text-sm bg-green-600 text-white py-1 px-3 rounded-md hover:bg-green-700"></button>
                     </div>
                     <p id="upload-frame-subtitle" class="text-sm text-gray-500 mt-2"></p>
-                    <div class="mt-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Add Frame by URL or Drive share link</label>
-                        <div class="flex gap-2">
-                            <input id="frameUrlInput" placeholder="https://drive.google.com/file/d/FILEID/view or direct image URL" class="w-full rounded-md border px-3 py-2" />
-                            <button id="addUrlBtn" class="file-input-button">Add</button>
-                        </div>
-                        <p id="urlAddStatus" class="text-sm text-gray-500 mt-1"></p>
-                    </div>
                 </div>
 
                 <div id="saved-frames-section" class="pt-4 border-t">
@@ -184,8 +176,7 @@
             langSwitcherBtn, cropModal, imageToCrop,
             confirmCropBtn, cancelCropBtn, zoomInBtn, zoomOutBtn, rotateLeftBtn, rotateRightBtn,
             saveFrameContainer, saveFrameBtn, savedFrameSelectionContainer, noSavedFrames,
-            driveFolderInput, driveApiKeyInput, loadDriveBtn, clearDriveBtn, driveStatus,
-            frameUrlInput, addUrlBtn, urlAddStatus;
+            driveFolderInput, driveApiKeyInput, loadDriveBtn, clearDriveBtn, driveStatus;
 
         // App State
         let userImage = null;
@@ -195,8 +186,12 @@
         let currentLang = 'en';
         let tempUploadedFrame = null;
 
-        // Start with no built-in templates. Frames will be loaded from Drive or added by URL.
         const frames = [
+            { id: 'simple-circle', name: 'Circle', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="48" fill="none" stroke="white" stroke-width="4"/></svg>` },
+            { id: 'gold-ring', name: 'Gold Ring', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fde047;stop-opacity:1" /><stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" /></linearGradient></defs><circle cx="50" cy="50" r="47" fill="none" stroke="url(#goldGradient)" stroke-width="6"/></svg>` },
+            { id: 'rainbow-pride', name: 'Pride', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="prideGradient" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#EF4444"/><stop offset="20%" stop-color="#F59E0B"/><stop offset="40%" stop-color="#FDE047"/><stop offset="60%" stop-color="#84CC16"/><stop offset="80%" stop-color="#3B82F6"/><stop offset="100%" stop-color="#8B5CF6"/></linearGradient></defs><rect width="100" height="100" fill="none" stroke="url(#prideGradient)" stroke-width="8"/></svg>` },
+            { id: 'khmer-welcome', name: 'ស្វាគមន៍', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><text x="50" y="85" font-family="Hanuman" font-size="14" fill="#D92528" text-anchor="middle" font-weight="bold">ស្វាគមន៍</text></svg>` },
+            { id: 'vintage-corners', name: 'Vintage', type: 'svg', content: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><style>.corner{fill:none;stroke:#a16207;stroke-width:2;}</style><path d="M0 20 L0 0 L20 0" class="corner"/><path d="M80 0 L100 0 L100 20" class="corner"/><path d="M100 80 L100 100 L80 100" class="corner"/><path d="M20 100 L0 100 L0 80" class="corner"/></svg>` },
             { id: 'no-frame', name: 'None', type: 'none', content: '' }
         ];
 
@@ -366,9 +361,6 @@
             loadDriveBtn = document.getElementById('loadDriveBtn');
             clearDriveBtn = document.getElementById('clearDriveBtn');
             driveStatus = document.getElementById('driveStatus');
-            frameUrlInput = document.getElementById('frameUrlInput');
-            addUrlBtn = document.getElementById('addUrlBtn');
-            urlAddStatus = document.getElementById('urlAddStatus');
             
             // SETUP EVENT LISTENERS
             langSwitcherBtn.addEventListener('click', () => {
@@ -410,21 +402,6 @@
                 driveApiKeyInput.value = '';
                 driveStatus.textContent = '';
             });
-            addUrlBtn && addUrlBtn.addEventListener('click', () => {
-                const raw = frameUrlInput.value.trim();
-                if (!raw) {
-                    urlAddStatus.textContent = 'Please paste an image URL or Drive share link.';
-                    return;
-                }
-                urlAddStatus.textContent = 'Adding...';
-                const direct = convertDriveUrlToDirect(raw);
-                addFrameFromUrl(direct).then(() => {
-                    urlAddStatus.textContent = 'Frame added.';
-                    frameUrlInput.value = '';
-                }).catch(err => {
-                    urlAddStatus.textContent = 'Error adding frame: ' + (err.message || err);
-                });
-            });
             downloadBtn.addEventListener('click', downloadImage);
             confirmCropBtn.addEventListener('click', applyCrop);
             cancelCropBtn.addEventListener('click', hideCropModal);
@@ -435,8 +412,6 @@
             rotateRightBtn.addEventListener('click', () => cropper && cropper.rotate(45));
 
             frames.forEach(frame => addFrameToSelection(frame, frameSelectionContainer));
-            // Add the two provided Drive frames (A and B)
-            addProvidedDriveFrames();
             updateActionButtonsState();
             switchLanguage('km'); // Set default language to Khmer
             
@@ -496,44 +471,6 @@
                 saveFrameContainer.classList.remove('hidden');
             }
             reader.readAsDataURL(file);
-        }
-
-        // Convert common Drive share link to a direct download URL, otherwise return original URL
-        function convertDriveUrlToDirect(url) {
-            try {
-                const u = new URL(url);
-                // Example: https://drive.google.com/file/d/FILEID/view?usp=sharing
-                const match = url.match(/\/d\/([a-zA-Z0-9_-]+)\/|id=([a-zA-Z0-9_-]+)/);
-                const id = match ? (match[1] || match[2]) : null;
-                if (id) return `https://drive.google.com/uc?export=download&id=${id}`;
-                return url;
-            } catch (e) {
-                return url;
-            }
-        }
-
-        async function addFrameFromUrl(url) {
-            return new Promise((resolve, reject) => {
-                const id = 'manual-' + Date.now();
-                const name = url.split('/').pop().split('?')[0] || id;
-                const frame = { id, name, type: 'png', content: url };
-                const el = addFrameToSelection(frame, frameSelectionContainer);
-                // select the newly added frame
-                selectFrame(frame, el);
-                resolve();
-            });
-        }
-
-        // Helper to add specific Drive files (A and B) by converting their share links
-        function addProvidedDriveFrames() {
-            const links = [
-                'https://drive.google.com/file/d/1stnrCaufWXJCNE3HEngBy9LoTgws-XNY/view?usp=drive_link',
-                'https://drive.google.com/file/d/1jWxiiFN23Yxg0doMoFZhBlPJ9YqsLZ2d/view?usp=drive_link'
-            ];
-            for (const l of links) {
-                const direct = convertDriveUrlToDirect(l);
-                addFrameFromUrl(direct);
-            }
         }
 
         function addFrameToSelection(frame, container, isSaved = false) {
